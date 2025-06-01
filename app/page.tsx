@@ -7,9 +7,15 @@ export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [glitchText, setGlitchText] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
     const handleScroll = () => setScrollY(window.scrollY);
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ 
@@ -100,7 +106,7 @@ export default function LandingPage() {
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"
           style={{
-            top: `${(scrollY * 0.5) % window.innerHeight}px`,
+            top: `${(scrollY * 0.5) % (typeof window !== 'undefined' ? window.innerHeight : 1000)}px`,
             animation: 'scan 2s linear infinite',
           }}
         />
