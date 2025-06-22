@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 import { 
   ArrowRight, 
   Shield, 
@@ -303,11 +304,13 @@ export default function LandingPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button variant="ghost" className="hidden sm:inline-flex">
-                Sign In
+              <Button variant="ghost" className="hidden sm:inline-flex" asChild>
+                <Link href="/auth/login">Sign In</Link>
               </Button>
-              <Button className="bg-primary hover:bg-primary/90">
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
+              <Button className="bg-primary hover:bg-primary/90" asChild>
+                <Link href="/auth/register">
+                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
 
               {/* Mobile Menu */}
@@ -377,13 +380,17 @@ export default function LandingPage() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <Button size="lg" className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all">
-                <Play className="mr-2 h-5 w-5" />
-                Start Free Trial
+              <Button size="lg" className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all" asChild>
+                <Link href="/auth/register">
+                  <Play className="mr-2 h-5 w-5" />
+                  Start Free Trial
+                </Link>
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-2 hover:bg-accent/10">
-                <Eye className="mr-2 h-5 w-5" />
-                Watch Live Demo
+              <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-2 hover:bg-accent/10" asChild>
+                <Link href="/auth/login">
+                  <Eye className="mr-2 h-5 w-5" />
+                  View Dashboard
+                </Link>
               </Button>
             </div>
 
