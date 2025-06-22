@@ -1,14 +1,64 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { ArrowRight, Shield, Eye, CheckCircle, Zap, Brain, Database, Network, Lock, AlertTriangle, Terminal, Cpu, Activity, Layers, Server, GitBranch } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
+import { 
+  ArrowRight, 
+  Shield, 
+  Eye, 
+  CheckCircle, 
+  Zap, 
+  Brain, 
+  Database, 
+  Network, 
+  Lock, 
+  AlertTriangle, 
+  Terminal, 
+  Cpu, 
+  Activity, 
+  Layers, 
+  Server, 
+  GitBranch, 
+  Globe, 
+  Users, 
+  BarChart3, 
+  Settings, 
+  Play, 
+  Star, 
+  ChevronDown,
+  Moon,
+  Sun,
+  Monitor,
+  Menu,
+  X,
+  Code,
+  Gauge,
+  FileText,
+  Bot,
+  Scan,
+  CreditCard,
+  Building,
+  Key,
+  Webhook,
+  TrendingUp,
+  Award,
+  Sparkles
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [glitchText, setGlitchText] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     setIsClient(true);
@@ -17,477 +67,420 @@ export default function LandingPage() {
   useEffect(() => {
     if (!isClient) return;
     const handleScroll = () => setScrollY(window.scrollY);
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ 
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100
-      });
-    };
-    
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('mousemove', handleMouseMove);
-    
-    // Glitch effect interval
-    const glitchInterval = setInterval(() => {
-      setGlitchText(true);
-      setTimeout(() => setGlitchText(false), 200);
-    }, 3000);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isClient]);
 
-    // Matrix rain effect
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      
-      const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
-      const matrixArray = matrix.split("");
-      
-      const fontSize = 10;
-      const columns = canvas.width / fontSize;
-      
-      const drops: number[] = [];
-      for(let x = 0; x < columns; x++) {
-        drops[x] = 1;
-      }
-      
-      const draw = () => {
-        if (ctx) {
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
-          ctx.fillStyle = '#00ffff';
-          ctx.font = fontSize + 'px monospace';
-          
-          for(let i = 0; i < drops.length; i++) {
-            const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            
-            if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-              drops[i] = 0;
-            }
-            drops[i]++;
-          }
-        }
-      };
-      
-      const matrixInterval = setInterval(draw, 35);
-      
-      return () => {
-        clearInterval(matrixInterval);
-      };
+  // Updated features based on actual API capabilities
+  const coreFeatures = [
+    {
+      icon: Shield,
+      title: "Advanced API Firewall",
+      description: "AI-powered firewall with custom rules, IP filtering, geo-blocking, and real-time threat detection. Block SQLi, XSS, and RCE attacks automatically.",
+      color: "from-blue-500 to-blue-600",
+      stats: "99.9% Attack Prevention"
+    },
+    {
+      icon: Zap,
+      title: "Intelligent Rate Limiting",
+      description: "Adaptive rate limiting with custom policies, endpoint-specific limits, and AI-driven anomaly detection to prevent abuse and DDoS attacks.",
+      color: "from-purple-500 to-purple-600",
+      stats: "50K+ Requests/sec"
+    },
+    {
+      icon: Lock,
+      title: "Zero-Config Authentication",
+      description: "JWT validation, OAuth integration, API key management with automatic rotation, and token lifecycle management.",
+      color: "from-green-500 to-green-600",
+      stats: "Enterprise Grade"
+    },
+    {
+      icon: Network,
+      title: "Encryption Gateway",
+      description: "End-to-end encryption, TLS termination, certificate management, and quantum-safe encryption protocols for maximum security.",
+      color: "from-orange-500 to-orange-600",
+      stats: "256-bit Encryption"
+    },
+    {
+      icon: Scan,
+      title: "AI Security Scanner",
+      description: "Advanced misconfiguration scanner with LLM integration. Detects CORS issues, exposed secrets, insecure headers, and API vulnerabilities.",
+      color: "from-red-500 to-red-600",
+      stats: "1000+ Scan Rules"
+    },
+    {
+      icon: CheckCircle,
+      title: "DPDP & CERT-IN Compliance",
+      description: "Automated compliance reports, audit logs, GDPR readiness, and Indian data protection law compliance with real-time monitoring.",
+      color: "from-teal-500 to-teal-600",
+      stats: "100% Compliant"
+    },
+    {
+      icon: BarChart3,
+      title: "Real-time Analytics",
+      description: "Comprehensive dashboard with threat analysis, geographic insights, API performance metrics, and predictive security analytics.",
+      color: "from-indigo-500 to-indigo-600",
+      stats: "Real-time Insights"
+    },
+    {
+      icon: Bot,
+      title: "AI Compliance Copilot",
+      description: "Interactive AI assistant for security guidance, compliance checklists, threat analysis, and automated remediation suggestions.",
+      color: "from-pink-500 to-pink-600",
+      stats: "24/7 AI Support"
     }
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
-      clearInterval(glitchInterval);
-    };
-  }, []);
+  ];
+
+  const sdkFeatures = [
+    {
+      title: "Node.js SDK",
+      language: "JavaScript",
+      description: "Express.js middleware, TypeScript support, async/await patterns",
+      icon: Code,
+      color: "from-yellow-500 to-yellow-600"
+    },
+    {
+      title: "Python SDK", 
+      language: "Python",
+      description: "Django/Flask integration, pip installable, asyncio support",
+      icon: Terminal,
+      color: "from-blue-500 to-blue-600"
+    },
+    {
+      title: "Go SDK",
+      language: "Go",
+      description: "Gin/Echo middleware, goroutine safe, minimal dependencies",
+      icon: Cpu,
+      color: "from-cyan-500 to-cyan-600"
+    },
+    {
+      title: "Java SDK",
+      language: "Java",
+      description: "Spring Boot integration, Maven/Gradle support, annotation-based",
+      icon: Settings,
+      color: "from-red-500 to-red-600"
+    },
+    {
+      title: "PHP SDK",
+      language: "PHP",
+      description: "Laravel/Symfony integration, Composer package, PSR compliance",
+      icon: Globe,
+      color: "from-purple-500 to-purple-600"
+    },
+    {
+      title: "REST API",
+      language: "Universal",
+      description: "Direct HTTP integration for any language or framework",
+      icon: Network,
+      color: "from-green-500 to-green-600"
+    },
+    {
+      title: "CLI Tools",
+      language: "Command Line",
+      description: "Security scanning, configuration management, CI/CD integration",
+      icon: Terminal,
+      color: "from-gray-500 to-gray-600"
+    },
+    {
+      title: "Webhooks",
+      language: "Events",
+      description: "Real-time security alerts, compliance notifications, custom integrations",
+      icon: Webhook,
+      color: "from-orange-500 to-orange-600"
+    }
+  ];
+
+  const stats = [
+    { label: "Security Modules", value: "8+", icon: Shield },
+    { label: "SDK Languages", value: "5+", icon: Code },
+    { label: "Security Rules", value: "1000+", icon: Database },
+    { label: "Development Status", value: "Beta", icon: Activity }
+  ];
+
+  const pricingPlans = [
+    {
+      name: "Startup",
+      price: "₹999",
+      period: "/month",
+      description: "Perfect for early-stage startups",
+      features: [
+        "Up to 10 API endpoints",
+        "Basic firewall protection",
+        "Rate limiting (1K req/min)",
+        "DPDP compliance reports",
+        "Email support"
+      ],
+      popular: false
+    },
+    {
+      name: "Growth",
+      price: "₹2,999", 
+      period: "/month",
+      description: "For growing startups and SMEs",
+      features: [
+        "Up to 100 API endpoints",
+        "Advanced AI firewall",
+        "Rate limiting (10K req/min)",
+        "Real-time analytics",
+        "AI Compliance Copilot",
+        "Priority support"
+      ],
+      popular: true
+    },
+    {
+      name: "Enterprise",
+      price: "Custom",
+      period: "",
+      description: "For large organizations",
+      features: [
+        "Unlimited API endpoints",
+        "Custom security rules",
+        "Dedicated infrastructure",
+        "Advanced analytics",
+        "24/7 dedicated support",
+        "Custom integrations"
+      ],
+      popular: false
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden relative">
-      {/* Matrix Rain Background */}
-      <canvas ref={canvasRef} className="fixed inset-0 z-0 opacity-20" />
-
-      {/* Grid Pattern */}
-      <div className="fixed inset-0 z-0 opacity-10"
-        style={{
-          backgroundImage: `
-            linear-gradient(cyan 1px, transparent 1px),
-            linear-gradient(90deg, cyan 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
-          transform: `translate(${scrollY * 0.1}px, ${scrollY * 0.1}px)`,
-        }}
-      />
-
-      {/* Scanning Lines */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"
-          style={{
-            top: `${(scrollY * 0.5) % (typeof window !== 'undefined' ? window.innerHeight : 1000)}px`,
-            animation: 'scan 2s linear infinite',
-          }}
-        />
-        <div className="absolute w-px h-full bg-gradient-to-b from-transparent via-cyan-500 to-transparent opacity-50"
-          style={{
-            left: `${mousePosition.x}%`,
-            animation: 'scanVertical 3s linear infinite',
-          }}
-        />
-      </div>
-
-      {/* Futuristic Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrollY > 50 ? 'bg-black/95 backdrop-blur-xl' : 'bg-transparent'
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrollY > 50 
+          ? 'bg-background/95 backdrop-blur-xl shadow-lg border-b border-border' 
+          : 'bg-transparent'
       }`}>
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
-        <nav className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+        <nav className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-cyan-500 blur-xl opacity-50 animate-pulse" />
-                <Shield className="h-10 w-10 text-cyan-500 relative z-10" />
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
+                <Shield className="h-8 w-8 text-primary relative z-10" />
               </div>
-              <span className="text-2xl font-mono font-bold text-cyan-500 tracking-wider">
-                SECKAV
-              </span>
+              <span className="text-2xl font-bold">SecKav</span>
+              <Badge variant="secondary" className="hidden sm:inline-flex">
+                API Security Platform
+              </Badge>
             </div>
             
-            <div className="hidden lg:flex items-center space-x-12">
-              {['SYSTEM', 'PROTOCOL', 'INTERFACE'].map((item, i) => (
-                <a key={i} href={`#${item.toLowerCase()}`} className="relative group">
-                  <span className="text-gray-500 font-mono text-sm tracking-widest hover:text-cyan-500 transition-colors duration-300">
-                    {item}
-                  </span>
-                  <div className="absolute -bottom-2 left-0 w-full h-px bg-cyan-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                         <div className="hidden lg:flex items-center space-x-8">
+               {['Features', 'SDK', 'Pricing', 'Docs'].map((item) => (
+                <a 
+                  key={item} 
+                  href={`#${item.toLowerCase().replace(' ', '-')}`} 
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium"
+                >
+                  {item}
                 </a>
               ))}
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="px-4 py-2 text-xs font-mono bg-cyan-500/10 text-cyan-500 border border-cyan-500/30 relative overflow-hidden group">
-                <span className="relative z-10">INITIALIZING</span>
-                <div className="absolute inset-0 bg-cyan-500/20 translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
-              </div>
+              {/* Theme Switcher */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    <span className="sr-only">Toggle theme</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                    <Sun className="mr-2 h-4 w-4" />
+                    Light
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    <Moon className="mr-2 h-4 w-4" />
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                    <Monitor className="mr-2 h-4 w-4" />
+                    System
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button variant="ghost" className="hidden sm:inline-flex">
+                Sign In
+              </Button>
+              <Button className="bg-primary hover:bg-primary/90">
+                Get Started <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+
+              {/* Mobile Menu */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden bg-background border-t border-border">
+                             <div className="px-2 pt-2 pb-3 space-y-1">
+                 {['Features', 'SDK', 'Pricing', 'Docs'].map((item) => (
+                  <a
+                    key={item}
+                    href={`#${item.toLowerCase().replace(' ', '-')}`}
+                    className="block px-3 py-2 text-muted-foreground hover:text-primary"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20">
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
-          
-          {/* Status Badge */}
-          <div className="flex justify-center mb-12">
-            <div className="inline-flex items-center px-6 py-3 bg-black border border-cyan-500/30 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-transparent animate-pulse" />
-              <Activity className="h-4 w-4 mr-3 text-cyan-500 animate-pulse" />
-              <span className="text-cyan-500 font-mono text-sm tracking-wider">NEURAL.SECURITY.ACTIVE</span>
-              <ArrowRight className="h-4 w-4 ml-3 text-cyan-500" />
+      <section className="relative pt-24 pb-12 lg:pt-32 lg:pb-20 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_50%)]"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="text-center">
+            {/* Status Badge */}
+            <div className="inline-flex items-center px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-8 border border-primary/20">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Comprehensive API Security Platform
+              <Badge className="ml-2 bg-blue-500/10 text-blue-600 border-blue-500/20">
+                In Development
+              </Badge>
             </div>
-          </div>
-          
-          {/* Main Title with Glitch Effect */}
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-mono font-black mb-8 text-center leading-tight relative">
-            <div className={`relative ${glitchText ? 'animate-glitch' : ''}`}>
-              <span className="block text-white opacity-20">YOUR.API</span>
-              <span className="block text-white opacity-40 -mt-4">YOUR.DATA</span>
-              <span className="block text-cyan-500 -mt-4">OUR.SHIELD</span>
-              {glitchText && (
-                <>
-                  <span className="absolute inset-0 block text-red-500 opacity-70" style={{ transform: 'translateX(2px)' }}>
-                    <span className="block">YOUR.API</span>
-                    <span className="block">YOUR.DATA</span>
-                    <span className="block">OUR.SHIELD</span>
-                  </span>
-                  <span className="absolute inset-0 block text-blue-500 opacity-70" style={{ transform: 'translateX(-2px)' }}>
-                    <span className="block">YOUR.API</span>
-                    <span className="block">YOUR.DATA</span>
-                    <span className="block">OUR.SHIELD</span>
-                  </span>
-                </>
-              )}
-            </div>
-          </h1>
-          
-          <p className="max-w-4xl mx-auto text-lg text-gray-400 mb-12 text-center font-mono leading-relaxed">
-            &gt; AUTONOMOUS_SECURITY_PROTOCOL // INDIAN_API_INFRASTRUCTURE<br/>
-            &gt; REALTIME_THREAT_DETECTION // DPDP_COMPLIANCE_ENGINE<br/>
-            &gt; STATUS: <span className="text-cyan-500">OPERATIONAL</span>
-          </p>
-          
-          {/* Tech Stack */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mb-16">
-            {[
-              { icon: Cpu, label: "NEURAL.AI" },
-              { icon: Shield, label: "ZERO.CONFIG" },
-              { icon: Zap, label: "QUANTUM.SPEED" },
-              { icon: Database, label: "DPDP.SECURE" }
-            ].map((item, index) => (
-              <div key={index} className="flex items-center space-x-2 px-4 py-2 border border-gray-800 hover:border-cyan-500/50 transition-colors duration-300 group">
-                <item.icon className="h-4 w-4 text-gray-500 group-hover:text-cyan-500 transition-colors duration-300" />
-                <span className="text-xs font-mono text-gray-500 group-hover:text-cyan-500 transition-colors duration-300">{item.label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Terminal Display */}
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-black border border-cyan-500/30 p-6 font-mono text-xs relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent animate-pulse" />
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full" />
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full" />
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                </div>
-                <span className="text-gray-500">SECKAV://TERMINAL.v2.0</span>
-              </div>
-              <div className="space-y-2">
-                <div className="text-gray-500">&gt; SYSTEM.INITIALIZE()</div>
-                <div className="text-cyan-500">&gt; LOADING: NEURAL_SECURITY_ENGINE...</div>
-                <div className="text-green-500">&gt; STATUS: DEVELOPMENT_MODE</div>
-                <div className="text-yellow-500">&gt; WARNING: EARLY_ACCESS_ONLY</div>
-                <div className="text-white">&gt; CONTACT: <span className="text-cyan-500">bugruster@gmail.com</span></div>
-                <div className="text-gray-500 animate-pulse">█</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Threat Analysis */}
-      <section id="system" className="py-32 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-mono font-black mb-4 text-cyan-500">
-              THREAT.MATRIX
-            </h2>
-            <p className="text-gray-500 font-mono text-sm">
-              &gt; ANALYZING_INDIAN_STARTUP_VULNERABILITIES
+            
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              Enterprise-Grade
+              <br />
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                API Security
+              </span>
+              <br />
+              for Indian Startups
+            </h1>
+            
+            <p className="max-w-3xl mx-auto text-xl text-muted-foreground mb-12 leading-relaxed">
+              Protect your APIs with AI-powered security, ensure DPDP compliance, and scale confidently. 
+              Built specifically for Indian startups with enterprise features at startup-friendly prices.
             </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Lock,
-                code: "BREACH_001",
-                title: "EXPOSED_ENDPOINTS",
-                severity: 95,
-                description: "NO_AUTH // NO_RATE_LIMIT // NO_ENCRYPTION"
-              },
-              {
-                icon: Eye,
-                code: "LEAK_002",
-                title: "DATA_HEMORRHAGE",
-                severity: 89,
-                description: "PII_EXPOSED // AADHAR_LOGS // UNMONITORED"
-              },
-              {
-                icon: AlertTriangle,
-                code: "LEGAL_003",
-                title: "DPDP_VIOLATION",
-                severity: 92,
-                description: "NON_COMPLIANT // PENALTY_RISK // SHUTDOWN"
-              },
-              {
-                icon: Database,
-                code: "COST_004",
-                title: "PRICE_BARRIER",
-                severity: 78,
-                description: "US_TOOLS // OVERPRICED // INACCESSIBLE"
-              },
-              {
-                icon: Activity,
-                code: "SPEED_005",
-                title: "DEV_FRICTION",
-                severity: 85,
-                description: "MANUAL_CONFIG // SLOW_DEPLOY // INNOVATION_BLOCKED"
-              },
-              {
-                icon: Network,
-                code: "BLIND_006",
-                title: "ZERO_VISIBILITY",
-                severity: 91,
-                description: "NO_MONITORING // ATTACK_BLIND // POST_BREACH_ALERT"
-              }
-            ].map((threat, index) => (
-              <div key={index} className="bg-black border border-gray-800 p-6 hover:border-red-500/50 transition-all duration-300 group relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-0 group-hover:opacity-50 animate-pulse" />
-                
-                <div className="flex items-center justify-between mb-4">
-                  <threat.icon className="h-6 w-6 text-red-500 opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="text-xs font-mono text-red-500">{threat.code}</span>
-                </div>
-                
-                <h3 className="text-sm font-mono text-white mb-2">{threat.title}</h3>
-                
-                <div className="mb-4">
-                  <div className="flex items-center justify-between text-xs font-mono mb-1">
-                    <span className="text-gray-500">SEVERITY</span>
-                    <span className="text-red-500">{threat.severity}%</span>
-                  </div>
-                  <div className="w-full h-1 bg-gray-900">
-                    <div 
-                      className="h-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-1000"
-                      style={{ width: `${threat.severity}%` }}
-                    />
-                  </div>
-                </div>
-                
-                <p className="text-xs font-mono text-gray-500">{threat.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+              <Button size="lg" className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all">
+                <Play className="mr-2 h-5 w-5" />
+                Start Free Trial
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-2 hover:bg-accent/10">
+                <Eye className="mr-2 h-5 w-5" />
+                Watch Live Demo
+              </Button>
+            </div>
 
-      {/* Solution Modules */}
-      <section id="protocol" className="py-32 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-mono font-black mb-4 text-cyan-500">
-              DEFENSE.MODULES
-            </h2>
-            <p className="text-gray-500 font-mono text-sm">
-              &gt; LOADING_AUTONOMOUS_SECURITY_PROTOCOLS
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Shield,
-                module: "MOD_01",
-                name: "API_SECURITY",
-                status: "ACTIVE",
-                features: ["AUTO_RATE_LIMIT", "TOKEN_EXPIRY", "ENCRYPTION_256"]
-              },
-              {
-                icon: Brain,
-                module: "MOD_02",
-                name: "AI_SCANNER",
-                status: "LEARNING",
-                features: ["PII_DETECTION", "LEAK_ANALYSIS", "PATTERN_RECOGNITION"]
-              },
-              {
-                icon: CheckCircle,
-                module: "MOD_03",
-                name: "DPDP_ENGINE",
-                status: "COMPLIANT",
-                features: ["AUTO_AUDIT", "LEGAL_REPORTS", "REALTIME_CHECK"]
-              },
-              {
-                icon: Database,
-                module: "MOD_04",
-                name: "DATA_VAULT",
-                status: "ENCRYPTED",
-                features: ["QUANTUM_SAFE", "KEY_ROTATION", "ZERO_KNOWLEDGE"]
-              },
-              {
-                icon: Activity,
-                module: "MOD_05",
-                name: "ALERT_SYSTEM",
-                status: "MONITORING",
-                features: ["ANOMALY_DETECT", "INSTANT_NOTIFY", "THREAT_PREDICT"]
-              },
-              {
-                icon: Terminal,
-                module: "MOD_06",
-                name: "DEV_INTERFACE",
-                status: "READY",
-                features: ["NPM_INSTALL", "PIP_PACKAGE", "CARGO_CRATE"]
-              }
-            ].map((item, index) => (
-              <div key={index} className="bg-black border border-gray-800 p-6 hover:border-cyan-500/50 transition-all duration-300 group relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 group-hover:opacity-50 animate-pulse" />
-                
-                <div className="flex items-center justify-between mb-4">
-                  <item.icon className="h-6 w-6 text-cyan-500 opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="text-xs font-mono text-gray-500">{item.module}</span>
-                </div>
-                
-                <h3 className="text-sm font-mono text-white mb-2">{item.name}</h3>
-                <div className="flex items-center space-x-2 mb-4">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-xs font-mono text-green-500">{item.status}</span>
-                </div>
-                
-                <div className="space-y-1">
-                  {item.features.map((feature, i) => (
-                    <div key={i} className="text-xs font-mono text-gray-600 group-hover:text-gray-400 transition-colors duration-300">
-                      &gt; {feature}
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
+              {stats.map((stat, index) => (
+                <div key={index} className="group">
+                  <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:scale-105">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-3 group-hover:bg-primary/20 transition-colors">
+                      <stat.icon className="h-6 w-6 text-primary" />
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Process Flow */}
-      <section className="py-32 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-mono font-black mb-4 text-cyan-500">
-              EXECUTION.SEQUENCE
-            </h2>
-            <p className="text-gray-500 font-mono text-sm">
-              &gt; FOUR_STEP_DEPLOYMENT_PROTOCOL
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { step: "01", name: "SCAN", desc: "DEEP_VULNERABILITY_ANALYSIS" },
-              { step: "02", name: "ANALYZE", desc: "THREAT_VECTOR_IDENTIFICATION" },
-              { step: "03", name: "DEPLOY", desc: "AUTO_SECURITY_ACTIVATION" },
-              { step: "04", name: "MONITOR", desc: "REALTIME_THREAT_RESPONSE" }
-            ].map((item, index) => (
-              <div key={index} className="text-center group">
-                <div className="relative w-24 h-24 mx-auto mb-6">
-                  <div className="absolute inset-0 border-2 border-cyan-500/30 rotate-45 group-hover:rotate-90 transition-transform duration-500" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-mono font-bold text-cyan-500">{item.step}</span>
+                    <div className="text-3xl font-bold mb-1">{stat.value}</div>
+                    <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
                   </div>
                 </div>
-                <h3 className="text-lg font-mono font-bold text-white mb-2">{item.name}</h3>
-                <p className="text-xs font-mono text-gray-500">{item.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Live Terminal Demo */}
-      <section id="interface" className="py-32 relative">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+      {/* Problem Statement */}
+      <section className="py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-mono font-black mb-4 text-cyan-500">
-              LIVE.INTERFACE
+            <Badge variant="destructive" className="mb-4">Critical Problem</Badge>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+              The API Security Crisis in India
             </h2>
-            <p className="text-gray-500 font-mono text-sm">
-              &gt; NEURAL_SECURITY_DEMONSTRATION
+            <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
+              70% of Indian startups have unsecured APIs exposed to the internet, making them vulnerable to attacks and non-compliant with regulations.
             </p>
           </div>
 
-          <div className="bg-black border border-cyan-500/30 p-8 font-mono text-sm relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent" />
-            
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-4">
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 bg-red-500" />
-                    <div className="w-3 h-3 bg-yellow-500" />
-                    <div className="w-3 h-3 bg-green-500" />
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              {[
+                {
+                  icon: AlertTriangle,
+                  title: "Exposed APIs with Hardcoded Keys",
+                  description: "No authentication, rate limiting, or encryption - making startups easy targets.",
+                  color: "destructive"
+                },
+                {
+                  icon: Eye,
+                  title: "Security Ignored Until Breach",
+                  description: "Most startups only invest in security after an attack or during compliance audit.",
+                  color: "warning"
+                },
+                {
+                  icon: CreditCard,
+                  title: "Expensive Enterprise Solutions",
+                  description: "Cloudflare, AWS WAF cost $500-2000/month - unaffordable for Indian startups.",
+                  color: "secondary"
+                },
+                {
+                  icon: FileText,
+                  title: "DPDP & CERT-IN Compliance Gap",
+                  description: "New Indian data protection laws make API security mandatory, not optional.",
+                  color: "primary"
+                }
+              ].map((item, index) => (
+                <div key={index} className="flex items-start space-x-4 p-4 rounded-lg bg-card/50 backdrop-blur-sm border border-border hover:shadow-md transition-all">
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+                    item.color === 'destructive' ? 'bg-red-100 dark:bg-red-900/20' :
+                    item.color === 'warning' ? 'bg-orange-100 dark:bg-orange-900/20' :
+                    item.color === 'secondary' ? 'bg-yellow-100 dark:bg-yellow-900/20' :
+                    'bg-primary/10'
+                  }`}>
+                    <item.icon className={`h-5 w-5 ${
+                      item.color === 'destructive' ? 'text-red-600 dark:text-red-400' :
+                      item.color === 'warning' ? 'text-orange-600 dark:text-orange-400' :
+                      item.color === 'secondary' ? 'text-yellow-600 dark:text-yellow-400' :
+                      'text-primary'
+                    }`} />
                   </div>
-                  <span className="text-cyan-500 text-xs">SECKAV://NEURAL.TERMINAL</span>
+                  <div>
+                    <h3 className="font-semibold mb-2">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </div>
                 </div>
-                <div className="text-green-500 text-xs animate-pulse">● LIVE</div>
-              </div>
-              
-              <div className="space-y-3 text-xs">
-                <div>
-                  <span className="text-green-500">$</span>
-                  <span className="text-cyan-500 ml-2">npx seckav init --mode=neural</span>
-                </div>
-                <div className="text-gray-500 ml-4">🚀 INITIALIZING_NEURAL_ENGINE...</div>
-                <div className="text-blue-500 ml-4">📡 SCANNING_API_ENDPOINTS...</div>
-                <div className="text-yellow-500 ml-4">⚠️  VULNERABILITY_DETECTED: /api/v2/users [NO_AUTH]</div>
-                <div className="text-red-500 ml-4">🔴 CRITICAL: AADHAR_IN_LOGS [DPDP_VIOLATION]</div>
-                <div className="text-orange-500 ml-4">📊 THREAT_VECTORS: 47 [ANALYZING...]</div>
-                <div className="text-cyan-500 ml-4">🛡️  DEPLOYING_QUANTUM_SHIELD...</div>
-                <div className="text-green-500 ml-4">✅ SECURITY_ACTIVE [COMPLIANCE: 100%]</div>
-                <div className="text-purple-500 ml-4">📈 MONITORING: REALTIME [LATENCY: 0.3ms]</div>
-                <div className="text-white ml-4 mt-4">
-                  <span className="animate-pulse">█</span>
-                  <span className="text-gray-500 ml-2">READY_FOR_NEXT_COMMAND</span>
+              ))}
+            </div>
+
+            <div className="relative">
+              <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 rounded-2xl p-8 border border-red-200 dark:border-red-800">
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full mb-6">
+                    <AlertTriangle className="h-10 w-10 text-red-600 dark:text-red-400" />
+                  </div>
+                  <h3 className="text-3xl font-bold mb-4">₹50 Cr+</h3>
+                  <p className="text-lg text-muted-foreground mb-6">
+                    Average cost of a data breach for Indian companies
+                  </p>
+                  <Badge variant="destructive" className="text-base px-4 py-2">
+                    Critical Risk
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -495,85 +488,294 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Contact */}
-      <section className="py-32 relative">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <div className="bg-black border border-cyan-500/30 p-12 relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent animate-pulse" />
-            
-            <div className="relative z-10">
-              <div className="flex items-center justify-center mb-8">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-cyan-500 blur-xl opacity-50 animate-pulse" />
-                  <Shield className="h-12 w-12 text-cyan-500 relative z-10" />
-                </div>
-              </div>
-              
-              <h2 className="text-4xl font-mono font-black text-white mb-6">
-                INITIATE.CONTACT
-              </h2>
-              
-              <p className="text-lg font-mono text-gray-400 mb-8">
-                &gt; EARLY_ACCESS_PROTOCOL_ACTIVE<br/>
-                &gt; PARTNERSHIP_CHANNELS_OPEN
-              </p>
-              
-              <div className="bg-black/50 border border-cyan-500/30 p-6 mb-8">
-                <p className="text-xs font-mono text-gray-500 mb-2">SECURE_CHANNEL</p>
-                <a 
-                  href="mailto:bugruster@gmail.com" 
-                  className="text-2xl font-mono font-bold text-cyan-500 hover:text-cyan-400 transition-colors duration-300"
-                >
-                  bugruster@gmail.com
-                </a>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                {[
-                  { icon: Brain, label: "AI_RESEARCH", status: "OPEN" },
-                  { icon: Zap, label: "BETA_ACCESS", status: "LIMITED" },
-                  { icon: Server, label: "ENTERPRISE", status: "CUSTOM" }
-                ].map((item, i) => (
-                  <div key={i} className="border border-gray-800 p-4 hover:border-cyan-500/50 transition-colors duration-300 group">
-                    <item.icon className="h-6 w-6 text-cyan-500 mx-auto mb-2 opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="text-xs font-mono text-white">{item.label}</div>
-                    <div className="text-xs font-mono text-gray-500">{item.status}</div>
+      {/* Core Features */}
+      <section id="features" className="py-20">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <Badge className="mb-4">Complete Solution</Badge>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+              8 Powerful Security Modules
+            </h2>
+            <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
+              Everything you need to secure your APIs, ensure compliance, and scale confidently.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {coreFeatures.map((feature, index) => (
+              <Card key={index} className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
+                <CardHeader className="relative">
+                  <div className={`inline-flex w-12 h-12 items-center justify-center rounded-lg bg-gradient-to-br ${feature.color} mb-4 shadow-lg`}>
+                    <feature.icon className="h-6 w-6 text-white" />
                   </div>
-                ))}
-              </div>
+                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </CardTitle>
+                  <Badge variant="secondary" className="w-fit text-xs">
+                    {feature.stats}
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500`} />
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+             {/* SDK Integration */}
+       <section id="sdk-integration" className="py-20 bg-muted/30">
+         <div className="max-w-7xl mx-auto px-4 lg:px-8">
+           <div className="text-center mb-16">
+             <Badge className="mb-4">Easy Integration</Badge>
+             <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+               One SDK, Multiple Languages
+             </h2>
+             <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
+               Integrate SecKav security into your existing applications with our comprehensive SDK.
+             </p>
+           </div>
+
+                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+             {sdkFeatures.map((sdk, index) => (
+               <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:scale-105 bg-card/60 backdrop-blur-sm border-border/50">
+                 <CardHeader>
+                   <div className="flex items-center justify-between mb-4">
+                     <div className={`inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r ${sdk.color} rounded-lg shadow-lg`}>
+                       <sdk.icon className="h-5 w-5 text-white" />
+                     </div>
+                     <Badge variant="outline" className="text-xs">
+                       {sdk.language}
+                     </Badge>
+                   </div>
+                   <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
+                     {sdk.title}
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent>
+                   <CardDescription className="text-muted-foreground">
+                     {sdk.description}
+                   </CardDescription>
+                 </CardContent>
+               </Card>
+             ))}
+           </div>
+
+           <div className="text-center mt-12">
+             <Button size="lg" variant="outline" className="text-lg px-8 py-4">
+               <Code className="mr-2 h-5 w-5" />
+               View SDK Documentation
+             </Button>
+           </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-20">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <Badge className="mb-4">Simple Pricing</Badge>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+              Choose Your Security Plan
+            </h2>
+            <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+              Start free, scale as you grow. Enterprise security at startup-friendly prices.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {pricingPlans.map((plan, index) => (
+              <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-2xl scale-105' : 'border-border'} hover:shadow-xl transition-all duration-300`}>
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-primary text-primary-foreground px-4 py-1">
+                      Most Popular
+                    </Badge>
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                  <div className="flex items-baseline">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground ml-1">{plan.period}</span>
+                  </div>
+                  <CardDescription>{plan.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-center">
+                        <CheckCircle className="h-4 w-4 text-green-500 mr-3 flex-shrink-0" />
+                        <span className="text-muted-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button className={`w-full mt-6 ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`} variant={plan.popular ? 'default' : 'outline'}>
+                    {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+             {/* Development Status */}
+       <section className="py-20 bg-muted/30">
+         <div className="max-w-7xl mx-auto px-4 lg:px-8">
+           <div className="text-center mb-16">
+             <Badge className="mb-4">Development Status</Badge>
+             <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+               Built for Indian Startups
+             </h2>
+             <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+               We're building the most comprehensive API security platform specifically for the Indian market.
+             </p>
+           </div>
+
+           <div className="grid lg:grid-cols-3 gap-8">
+                            <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-card/60 backdrop-blur-sm">
+                 <CardContent className="p-6 text-center">
+                   <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6">
+                     <Code className="h-8 w-8 text-primary" />
+                   </div>
+                   <h3 className="text-xl font-bold mb-4">Multi-Language SDK</h3>
+                   <p className="text-muted-foreground">
+                     Node.js, Python, Go, Java, PHP SDKs with framework-specific integrations and examples.
+                   </p>
+                 </CardContent>
+               </Card>
+
+             <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-card/60 backdrop-blur-sm">
+               <CardContent className="p-6 text-center">
+                 <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6">
+                   <Shield className="h-8 w-8 text-primary" />
+                 </div>
+                 <h3 className="text-xl font-bold mb-4">8 Security Modules</h3>
+                 <p className="text-muted-foreground">
+                   Advanced firewall, rate limiting, encryption, AI scanner, and compliance tools.
+                 </p>
+               </CardContent>
+             </Card>
+
+             <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-card/60 backdrop-blur-sm">
+               <CardContent className="p-6 text-center">
+                 <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-6">
+                   <CheckCircle className="h-8 w-8 text-primary" />
+                 </div>
+                 <h3 className="text-xl font-bold mb-4">DPDP Compliant</h3>
+                 <p className="text-muted-foreground">
+                   Built with Indian data protection laws and CERT-IN guidelines in mind.
+                 </p>
+               </CardContent>
+             </Card>
+           </div>
+         </div>
+       </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-primary/10 via-secondary/5 to-primary/10">
+        <div className="max-w-4xl mx-auto text-center px-4 lg:px-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full mb-8">
+            <Shield className="h-10 w-10 text-primary" />
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+            Ready to Secure Your APIs?
+          </h2>
+                     <p className="text-xl text-muted-foreground mb-8">
+             Get early access to the most comprehensive API security platform built for Indian startups.
+           </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <Button size="lg" className="text-lg px-8 py-4 shadow-xl">
+              Start Free Trial
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-2">
+              Schedule Demo Call
+            </Button>
+          </div>
+          <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
+            <div className="flex items-center">
+              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+              14-day free trial
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+              No credit card required
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+              Cancel anytime
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-gray-900">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
-          <p className="text-xs font-mono text-gray-500">
-            © 2025 SECKAV // NEURAL_SECURITY_SYSTEMS
-          </p>
+      <footer className="bg-muted/50 border-t border-border py-12">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="grid lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-2">
+              <div className="flex items-center space-x-3 mb-4">
+                <Shield className="h-8 w-8 text-primary" />
+                <span className="text-2xl font-bold">SecKav</span>
+              </div>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Enterprise-grade API security platform built for Indian startups. 
+                DPDP compliant, CERT-IN ready, with AI-powered protection.
+              </p>
+                             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                 <Badge variant="outline">
+                   <CheckCircle className="h-3 w-3 mr-1" />
+                   DPDP Compliant Design
+                 </Badge>
+                 <Badge variant="outline">
+                   <Code className="h-3 w-3 mr-1" />
+                   Open Source Ready
+                 </Badge>
+               </div>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">Product</h3>
+              <ul className="space-y-3 text-muted-foreground">
+                <li><a href="#features" className="hover:text-primary transition-colors">Features</a></li>
+                <li><a href="#pricing" className="hover:text-primary transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Documentation</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">API Reference</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Status Page</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">Company</h3>
+              <ul className="space-y-3 text-muted-foreground">
+                <li><a href="#" className="hover:text-primary transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">DPDP Compliance</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-border mt-12 pt-8 flex flex-col lg:flex-row items-center justify-between">
+            <p className="text-muted-foreground text-center lg:text-left">
+              © 2024 SecKav Technologies Pvt Ltd. All rights reserved.
+            </p>
+            <div className="flex items-center space-x-4 mt-4 lg:mt-0">
+              <Badge variant="outline" className="text-xs">
+                Made in India 🇮🇳 for Bharat
+              </Badge>
+            </div>
+          </div>
         </div>
       </footer>
-
-      <style jsx>{`
-        @keyframes scan {
-          0% { transform: translateY(-100vh); }
-          100% { transform: translateY(100vh); }
-        }
-        
-        @keyframes scanVertical {
-          0% { transform: translateX(-100vw); }
-          100% { transform: translateX(100vw); }
-        }
-        
-        @keyframes glitch {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
-        }
-      `}</style>
     </div>
   );
 }
