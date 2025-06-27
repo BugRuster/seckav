@@ -23,7 +23,8 @@ import {
   Moon, 
   Monitor,
   AlertCircle,
-  Loader2
+  Loader2,
+  Chrome
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -37,6 +38,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   const { theme, setTheme } = useTheme();
   const { login } = useAuth();
@@ -50,9 +52,9 @@ export default function LoginPage() {
     try {
       const result = await loginUser({ email, password });
 
-      if (result.success && result.token && result.user) {
+      if (result.success && result.user) {
         // Use AuthContext login method
-        login(result.user, result.token);
+        login(result.user, result.token || '');
         
         // Redirect to dashboard
         router.push('/dashboard');
@@ -63,6 +65,48 @@ export default function LoginPage() {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    setError('');
+
+    try {
+      console.log('Attempting to get Google OAuth URL from backend...');
+      
+      // Get Google OAuth URL from backend
+      const response = await fetch('http://localhost:3000/api/v1/auth/google/redirect', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Backend response:', data);
+        
+        if (data.redirectUrl) {
+          console.log('Redirecting to Google OAuth URL:', data.redirectUrl);
+          // Redirect to Google OAuth
+          window.location.href = data.redirectUrl;
+        } else {
+          setError('No redirect URL received from backend');
+          setGoogleLoading(false);
+        }
+      } else {
+        const errorData = await response.text();
+        console.error('Backend error response:', errorData);
+        setError(`Backend error: ${response.status} - ${errorData}`);
+        setGoogleLoading(false);
+      }
+    } catch (err) {
+      console.error('Google sign-in fetch error:', err);
+      setError(`Network error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setGoogleLoading(false);
     }
   };
 
@@ -130,6 +174,38 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            {/* Google Sign-In Button */}
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full" 
+              onClick={handleGoogleSignIn}
+              disabled={googleLoading}
+            >
+              {googleLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Redirecting to Google...
+                </>
+              ) : (
+                <>
+                  <Chrome className="mr-2 h-4 w-4" />
+                  Continue with Google
+                </>
+              )}
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with email
+                </span>
+              </div>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">

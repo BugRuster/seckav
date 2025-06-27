@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation';
 
 interface User {
   id: string;
-  firstName: string;
-  lastName: string;
+  displayName: string;
   email: string;
   organizationId?: string;
-  organizationName?: string;
 }
 
 interface AuthContextType {

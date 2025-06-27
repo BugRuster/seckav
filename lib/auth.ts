@@ -4,11 +4,9 @@ export interface AuthResponse {
   token?: string;
   user?: {
     id: string;
-    firstName: string;
-    lastName: string;
+    displayName: string;
     email: string;
     organizationId?: string;
-    organizationName?: string;
   };
   message?: string;
 }
@@ -19,18 +17,20 @@ export interface LoginData {
 }
 
 export interface RegisterData {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password: string;
-  organizationName: string;
+}
+
+export interface GoogleSignInData {
+  idToken: string;
 }
 
 // Mock user database (in production, this would be in your backend)
 const mockUsers: any[] = [];
 
-// Backend configuration
-const BACKEND_BASE_URL = 'http://localhost:8000';
+// Backend configuration - Updated to correct port
+const BACKEND_BASE_URL = 'http://localhost:3000';
 
 export async function mockLogin(data: LoginData): Promise<AuthResponse> {
   // Simulate API delay
@@ -61,11 +61,9 @@ export async function mockLogin(data: LoginData): Promise<AuthResponse> {
     token,
     user: {
       id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      displayName: user.displayName,
       email: user.email,
       organizationId: user.organizationId,
-      organizationName: user.organizationName
     }
   };
 }
@@ -87,12 +85,10 @@ export async function mockRegister(data: RegisterData): Promise<AuthResponse> {
   // Create new user
   const newUser = {
     id: `user_${Date.now()}`,
-    firstName: data.firstName,
-    lastName: data.lastName,
+    displayName: data.name,
     email: data.email,
     password: data.password, // In production, this would be hashed
-    organizationId: `org_${Date.now()}`,
-    organizationName: data.organizationName,
+    organizationId: undefined,
     createdAt: new Date().toISOString()
   };
 
@@ -107,12 +103,29 @@ export async function mockRegister(data: RegisterData): Promise<AuthResponse> {
     token,
     user: {
       id: newUser.id,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
+      displayName: newUser.displayName,
       email: newUser.email,
       organizationId: newUser.organizationId,
-      organizationName: newUser.organizationName
     }
+  };
+}
+
+export async function mockGoogleSignIn(data: GoogleSignInData): Promise<AuthResponse> {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // For mock, we'll create a user based on the token
+  const mockUser = {
+    id: `google_user_${Date.now()}`,
+    displayName: 'Google User',
+    email: 'google@example.com',
+    organizationId: undefined,
+  };
+
+  return {
+    success: true,
+    token: data.idToken,
+    user: mockUser
   };
 }
 
@@ -120,7 +133,7 @@ export async function mockRegister(data: RegisterData): Promise<AuthResponse> {
 export async function loginUser(data: LoginData): Promise<AuthResponse> {
   try {
     // Try to connect to backend first
-    const response = await fetch('/api/v1/auth/login', {
+    const response = await fetch(`${BACKEND_BASE_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -133,13 +146,18 @@ export async function loginUser(data: LoginData): Promise<AuthResponse> {
       return {
         success: true,
         token: result.token,
-        user: result.user
+        user: {
+          id: result.user.id,
+          displayName: result.user.displayName,
+          email: result.user.email,
+          organizationId: result.user.organizationId,
+        }
       };
     } else {
       const error = await response.json();
       return {
         success: false,
-        message: error.message || 'Login failed'
+        message: error.error || error.message || 'Login failed'
       };
     }
   } catch (error) {
@@ -151,21 +169,13 @@ export async function loginUser(data: LoginData): Promise<AuthResponse> {
 
 export async function registerUser(data: RegisterData): Promise<AuthResponse> {
   try {
-    // Transform frontend data to backend format
-    const backendData = {
-      name: `${data.firstName} ${data.lastName}`,
-      email: data.email,
-      password: data.password,
-      organizationName: data.organizationName
-    };
-
     // Try to connect to backend first
-    const response = await fetch('/api/v1/auth/register', {
+    const response = await fetch(`${BACKEND_BASE_URL}/api/v1/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(backendData),
+      body: JSON.stringify(data),
     });
 
     if (response.ok) {
@@ -173,18 +183,60 @@ export async function registerUser(data: RegisterData): Promise<AuthResponse> {
       return {
         success: true,
         token: result.token,
-        user: result.user
+        user: {
+          id: result.user.id,
+          displayName: result.user.displayName,
+          email: result.user.email,
+          organizationId: result.user.organizationId,
+        }
       };
     } else {
       const error = await response.json();
       return {
         success: false,
-        message: error.message || 'Registration failed'
+        message: error.error || error.message || 'Registration failed'
       };
     }
   } catch (error) {
     console.log('Backend not available, using mock authentication');
     // Fallback to mock authentication
     return mockRegister(data);
+  }
+}
+
+export async function googleSignIn(data: GoogleSignInData): Promise<AuthResponse> {
+  try {
+    // Try to connect to backend first
+    const response = await fetch(`${BACKEND_BASE_URL}/api/v1/auth/google`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      return {
+        success: true,
+        token: result.token,
+        user: {
+          id: result.user.id,
+          displayName: result.user.displayName,
+          email: result.user.email,
+          organizationId: result.user.organizationId,
+        }
+      };
+    } else {
+      const error = await response.json();
+      return {
+        success: false,
+        message: error.error || error.message || 'Google sign-in failed'
+      };
+    }
+  } catch (error) {
+    console.log('Backend not available, using mock authentication');
+    // Fallback to mock authentication
+    return mockGoogleSignIn(data);
   }
 } 

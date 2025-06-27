@@ -26,8 +26,8 @@ import {
   AlertCircle,
   Loader2,
   User,
-  Building,
-  CheckCircle
+  CheckCircle,
+  Chrome
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -38,17 +38,16 @@ import {
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    organizationName: '',
     agreeToTerms: false
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
   const { theme, setTheme } = useTheme();
   const { login } = useAuth();
@@ -66,8 +65,8 @@ export default function RegisterPage() {
       setError('Passwords do not match');
       return false;
     }
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
       return false;
     }
     if (!formData.agreeToTerms) {
@@ -89,16 +88,14 @@ export default function RegisterPage() {
 
     try {
       const result = await registerUser({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        name: formData.name,
         email: formData.email,
         password: formData.password,
-        organizationName: formData.organizationName,
       });
 
-      if (result.success && result.token && result.user) {
+      if (result.success && result.user) {
         // Use AuthContext login method
-        login(result.user, result.token);
+        login(result.user, result.token || '');
         
         // Redirect to dashboard
         router.push('/dashboard');
@@ -112,9 +109,51 @@ export default function RegisterPage() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    setError('');
+
+    try {
+      console.log('Attempting to get Google OAuth URL from backend...');
+      
+      // Get Google OAuth URL from backend
+      const response = await fetch('http://localhost:3000/api/v1/auth/google/redirect', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Backend response:', data);
+        
+        if (data.redirectUrl) {
+          console.log('Redirecting to Google OAuth URL:', data.redirectUrl);
+          // Redirect to Google OAuth
+          window.location.href = data.redirectUrl;
+        } else {
+          setError('No redirect URL received from backend');
+          setGoogleLoading(false);
+        }
+      } else {
+        const errorData = await response.text();
+        console.error('Backend error response:', errorData);
+        setError(`Backend error: ${response.status} - ${errorData}`);
+        setGoogleLoading(false);
+      }
+    } catch (err) {
+      console.error('Google sign-in fetch error:', err);
+      setError(`Network error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setGoogleLoading(false);
+    }
+  };
+
   const passwordStrength = (password: string) => {
     let strength = 0;
-    if (password.length >= 8) strength++;
+    if (password.length >= 6) strength++;
     if (/[A-Z]/.test(password)) strength++;
     if (/[a-z]/.test(password)) strength++;
     if (/[0-9]/.test(password)) strength++;
@@ -199,32 +238,51 @@ export default function RegisterPage() {
               </Alert>
             )}
 
+            {/* Google Sign-In Button */}
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full" 
+              onClick={handleGoogleSignIn}
+              disabled={googleLoading}
+            >
+              {googleLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Redirecting to Google...
+                </>
+              ) : (
+                <>
+                  <Chrome className="mr-2 h-4 w-4" />
+                  Continue with Google
+                </>
+              )}
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with email
+                </span>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="firstName"
-                      type="text"
-                      placeholder="John"
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+              {/* Name Field */}
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="lastName"
+                    id="name"
                     type="text"
-                    placeholder="Doe"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className="pl-10"
                     required
                   />
                 </div>
@@ -241,23 +299,6 @@ export default function RegisterPage() {
                     placeholder="john@company.com"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Organization */}
-              <div className="space-y-2">
-                <Label htmlFor="organizationName">Organization Name</Label>
-                <div className="relative">
-                  <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="organizationName"
-                    type="text"
-                    placeholder="Your company name"
-                    value={formData.organizationName}
-                    onChange={(e) => handleInputChange('organizationName', e.target.value)}
                     className="pl-10"
                     required
                   />
