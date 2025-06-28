@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth, useAuthGuard } from '@/contexts/AuthContext';
 import { 
   getUserProfile, 
@@ -23,7 +24,8 @@ import {
   CheckCircle,
   AlertCircle,
   Settings,
-  Save
+  Save,
+  ArrowLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +49,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function SettingsPage() {
   const { user, token, login, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   
   // Profile states
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -67,6 +70,9 @@ export default function SettingsPage() {
   
   // Loading states
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  
+  // Store generated keys temporarily for revocation (since backend list doesn't return keys)
+  const [generatedKeys, setGeneratedKeys] = useState<Record<string, string>>({});
 
   // Use auth guard
   useAuthGuard();
@@ -76,6 +82,16 @@ export default function SettingsPage() {
     if (token && isAuthenticated) {
       loadProfile();
       loadApiKeys();
+    }
+    
+    // Load stored API keys from localStorage
+    const storedKeys = localStorage.getItem('seckav_generated_keys');
+    if (storedKeys) {
+      try {
+        setGeneratedKeys(JSON.parse(storedKeys));
+      } catch (error) {
+        console.error('Error loading stored API keys:', error);
+      }
     }
   }, [token, isAuthenticated]);
 
@@ -175,6 +191,13 @@ export default function SettingsPage() {
       if (result.success && result.apiKey) {
         setGeneratedKey(result.apiKey);
         setShowGeneratedKey(true);
+        
+        // Store the generated key locally for future revocation
+        const keyName = newApiKeyName.trim();
+        const updatedKeys = { ...generatedKeys, [keyName]: result.apiKey };
+        setGeneratedKeys(updatedKeys);
+        localStorage.setItem('seckav_generated_keys', JSON.stringify(updatedKeys));
+        
         setNewApiKeyName('');
         setIsNewKeyDialogOpen(false);
         await loadApiKeys(); // Refresh the list
@@ -200,12 +223,29 @@ export default function SettingsPage() {
     }
   };
 
-  const handleRevokeApiKey = async (key: string) => {
+  const handleRevokeApiKey = async (keyName: string) => {
     if (!token) return;
     
+    // Get the actual key from our stored keys
+    const actualKey = generatedKeys[keyName];
+    if (!actualKey) {
+      toast({
+        title: "Error",
+        description: "Cannot revoke this API key. Key was generated before this session or in a different browser.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
-      const result = await revokeApiKey(key, token);
+      const result = await revokeApiKey(actualKey, token);
       if (result.success) {
+        // Remove from stored keys
+        const updatedKeys = { ...generatedKeys };
+        delete updatedKeys[keyName];
+        setGeneratedKeys(updatedKeys);
+        localStorage.setItem('seckav_generated_keys', JSON.stringify(updatedKeys));
+        
         await loadApiKeys(); // Refresh the list
         toast({
           title: "Success",
@@ -263,6 +303,16 @@ export default function SettingsPage() {
       <div className="container max-w-4xl mx-auto py-8 px-4">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => router.push('/dashboard')}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Dashboard</span>
+            </Button>
+          </div>
           <div className="flex items-center space-x-3 mb-2">
             <Settings className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold">Account Settings</h1>
@@ -397,6 +447,15 @@ export default function SettingsPage() {
 
           {/* API Keys Tab */}
           <TabsContent value="api-keys" className="space-y-6">
+            {/* Information Alert */}
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Note:</strong> Only API keys generated in this browser session can be revoked. 
+                Keys created before this session or in other browsers will show as "Legacy" and cannot be revoked from here.
+              </AlertDescription>
+            </Alert>
+
             {/* Generated Key Display */}
             {generatedKey && (
               <Alert>
@@ -502,47 +561,71 @@ export default function SettingsPage() {
                   </div>
                 ) : apiKeys.length > 0 ? (
                   <div className="space-y-4">
-                    {apiKeys.map((apiKey, index) => (
-                      <div key={index} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <h4 className="font-medium">{apiKey.name}</h4>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                              <span>Created: {formatDate(apiKey.createdAt)}</span>
-                              {apiKey.lastUsed && (
-                                <span>Last used: {formatDate(apiKey.lastUsed)}</span>
+                    {apiKeys.map((apiKey, index) => {
+                      const canRevoke = generatedKeys[apiKey.name];
+                      return (
+                        <div key={index} className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center space-x-2">
+                                <h4 className="font-medium">{apiKey.name}</h4>
+                                {canRevoke ? (
+                                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                    Revocable
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-orange-600">
+                                    Legacy
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                                <span>Created: {formatDate(apiKey.createdAt)}</span>
+                                {apiKey.lastUsed && (
+                                  <span>Last used: {formatDate(apiKey.lastUsed)}</span>
+                                )}
+                              </div>
+                              {!canRevoke && (
+                                <p className="text-xs text-orange-600">
+                                  This key was created before this session. Cannot be revoked from here.
+                                </p>
                               )}
                             </div>
-                          </div>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                                <Trash2 className="h-3 w-3 mr-1" />
-                                Revoke
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Revoke API Key</DialogTitle>
-                                <DialogDescription>
-                                  Are you sure you want to revoke the API key "{apiKey.name}"? 
-                                  This action cannot be undone and any applications using this key will stop working.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <DialogFooter>
-                                <Button variant="outline">Cancel</Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
                                 <Button 
-                                  variant="destructive"
-                                  onClick={() => apiKey.key && handleRevokeApiKey(apiKey.key)}
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="text-red-600 hover:text-red-700"
+                                  disabled={!canRevoke}
                                 >
-                                  Revoke Key
+                                  <Trash2 className="h-3 w-3 mr-1" />
+                                  Revoke
                                 </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Revoke API Key</DialogTitle>
+                                  <DialogDescription>
+                                    Are you sure you want to revoke the API key "{apiKey.name}"? 
+                                    This action cannot be undone and any applications using this key will stop working.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter>
+                                  <Button variant="outline">Cancel</Button>
+                                  <Button 
+                                    variant="destructive"
+                                    onClick={() => handleRevokeApiKey(apiKey.name)}
+                                  >
+                                    Revoke Key
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8">
