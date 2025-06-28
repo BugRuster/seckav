@@ -234,7 +234,7 @@ export default function DashboardPage() {
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/avatars/user.jpg" alt="User" />
                     <AvatarFallback>
-                      {user?.firstName?.[0]}{user?.lastName?.[0]}
+                      {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -242,12 +242,12 @@ export default function DashboardPage() {
               <DropdownMenuContent className="w-56" align="end">
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium">{user?.firstName} {user?.lastName}</p>
+                    <p className="font-medium">{user?.displayName}</p>
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
@@ -255,7 +255,7 @@ export default function DashboardPage() {
                   <Building className="mr-2 h-4 w-4" />
                   Organization
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
@@ -276,7 +276,7 @@ export default function DashboardPage() {
           {/* Welcome Section */}
           <div className="space-y-2">
             <h1 className="text-3xl font-bold">
-              Welcome back, {user?.firstName}! 👋
+              Welcome back, {user?.displayName?.split(' ')[0] || user?.email?.split('@')[0]}! 👋
             </h1>
             <p className="text-muted-foreground">
               Here's what's happening with your API security

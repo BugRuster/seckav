@@ -8,6 +8,9 @@ interface User {
   displayName: string;
   email: string;
   organizationId?: string;
+  role?: string;
+  isEmailVerified?: boolean;
+  createdAt?: string;
 }
 
 interface AuthContextType {
