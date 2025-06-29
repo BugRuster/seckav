@@ -251,7 +251,7 @@ export default function DashboardPage() {
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/dashboard/organization')}>
                   <Building className="mr-2 h-4 w-4" />
                   Organization
                 </DropdownMenuItem>
